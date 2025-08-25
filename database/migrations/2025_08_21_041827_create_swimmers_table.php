@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('swimmers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('skill_id');
-            $table->foreignId('group_id');
-            $table->string('review');
-            $table->string('complement');
+            $table->foreignId('skill_id')->nullable();
+            $table->foreignId('group_id')->nullable();
+            $table->string('review')->nullable();
+            $table->string('complement')->nullable();
             $table->timestamps();
         });
     }

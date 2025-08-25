@@ -14,15 +14,13 @@ class SwimmerForm
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('skill_id')
-                    ->required()
                     ->numeric(),
                 TextInput::make('group_id')
-                    ->required()
                     ->numeric(),
-                TextInput::make('review')
-                    ->required(),
-                TextInput::make('complement')
-                    ->required(),
+                TextInput::make('review'),
+
+                TextInput::make('complement'),
+
             ]);
     }
 }
