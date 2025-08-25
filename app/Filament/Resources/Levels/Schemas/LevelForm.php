@@ -48,18 +48,7 @@ class LevelForm
                         TextInput::make('index')
                             ->label('Orden')
                             ->required()
-                            ->numeric()
-                            ->default(function ($get, $set, $state) {
-                                // Auto-calcular el siguiente número de orden
-                                $skills = $get('../../skills') ?? [];
-                                $maxIndex = 0;
-                                foreach ($skills as $skill) {
-                                    if (isset($skill['index']) && $skill['index'] > $maxIndex) {
-                                        $maxIndex = $skill['index'];
-                                    }
-                                }
-                                return $maxIndex + 1;
-                            }),
+                            ->numeric(),
 
                         Repeater::make('subSkills')
                             ->relationship('subSkills')
@@ -86,7 +75,7 @@ class LevelForm
                         ($state['index'] ?? '?') . '. ' . ($state['name'] ?? 'Skill sin nombre')
                     )
                     ->defaultItems(0)
-                    ->orderColumn('index'),
+
             ]);
     }
 }
