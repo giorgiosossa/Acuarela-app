@@ -5,10 +5,11 @@ namespace App\Filament\Resources\Groups\Schemas;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
-use App\Models\Skill;
+use Filament\Schemas\Schema;
 
+use App\Models\Skill;
+use App\Models\Swimmer;
 class GroupForm
 {
     public static function configure(Schema $schema): Schema
@@ -28,7 +29,7 @@ class GroupForm
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->live() // Importante: hace que el campo sea reactivo
+                    ->live() // Ya tenías esto correctamente
                     ->createOptionForm([
                         TextInput::make('name')
                             ->label('Nombre del Nivel')
@@ -42,22 +43,28 @@ class GroupForm
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->createOptionForm([
-                        TextInput::make('name')
-                            ->label('Nombre del Nadador')
-                            ->required()
-                            ->maxLength(255),
+                    ->createOptionForm(function (Get $get): array {
+                        $levelId = $get('level_id'); // Acceso directo desde aquí
 
-                        Select::make('skill_id')
-                            ->label('Objetivo')
-                            ->required()
-                            ->searchable()
-                            ->live() // Hace el campo reactivo
-                            ->afterStateUpdated(function (Get $get) {
-                                $currentLevel = $get('level_id');
-                            })
+                        return [
+                            TextInput::make('name')
+                                ->label('Nombre del Nadador')
+                                ->required()
+                                ->maxLength(255),
 
-                    ]),
+                            Select::make('skill_id')
+                                ->label('Objetivo')
+                                ->options(
+                                    $levelId
+                                        ? Skill::where('level_id', $levelId)->pluck('name', 'id')->toArray()
+                                        : []
+                                )
+                                ->required()
+                                ->searchable()
+                                ->placeholder($levelId ? 'Selecciona un objetivo' : 'Selecciona un nivel primero')
+                                ->disabled(!$levelId),
+                        ];
+                    })
             ]);
     }
 }
