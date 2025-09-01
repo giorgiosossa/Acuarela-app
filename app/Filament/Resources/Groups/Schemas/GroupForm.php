@@ -6,6 +6,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use App\Models\Skill;
 
 class GroupForm
 {
@@ -26,6 +28,7 @@ class GroupForm
                     ->required()
                     ->searchable()
                     ->preload()
+                    ->live() // Importante: hace que el campo sea reactivo
                     ->createOptionForm([
                         TextInput::make('name')
                             ->label('Nombre del Nivel')
@@ -33,21 +36,28 @@ class GroupForm
                             ->maxLength(255),
                     ]),
 
+                Select::make('swimmer')
+                    ->label('Nadador')
+                    ->relationship('swimmers', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Nombre del Nadador')
+                            ->required()
+                            ->maxLength(255),
 
+                        Select::make('skill_id')
+                            ->label('Objetivo')
+                            ->required()
+                            ->searchable()
+                            ->live() // Hace el campo reactivo
+                            ->afterStateUpdated(function (Get $get) {
+                                $currentLevel = $get('level_id');
+                            })
 
-                Repeater::make('swimmers')
-                ->relationship('swimmers')
-                ->schema([
-                    TextInput::make('name')
-                        ->label('Nombre del nadador')
-                        ->required()
-                        ->maxLength(255),
-
-                ])
-
-
-
-
+                    ]),
             ]);
     }
 }
