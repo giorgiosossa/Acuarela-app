@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class GroupResource extends Resource
 {
@@ -46,5 +47,12 @@ class GroupResource extends Resource
             'create' => CreateGroup::route('/create'),
             'edit' => EditGroup::route('/{record}/edit'),
         ];
+    }
+
+    // Cargar relaciones necesarias para optimizar las consultas
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['swimmers.currentSkill', 'level']);
     }
 }
