@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Groups\Schemas;
 
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -16,9 +18,16 @@ class GroupForm
     {
         return $schema
             ->schema([
-                TextInput::make('hour')
+                TimePicker::make('hour')
                     ->required(),
-                TextInput::make('days')
+
+                Select::make('days')
+                    ->options([
+                        'L,M,V' => 'Lunes, Miercoles y Viernes',
+                        'M,J' => 'Martes y Jueves',
+                        'V' => 'Viernes',
+                        'S' => 'Sabado',
+                    ])
                     ->required(),
                 TextInput::make('note')
                     ->required(),
@@ -37,34 +46,39 @@ class GroupForm
                             ->maxLength(255),
                     ]),
 
-                Select::make('swimmer')
-                    ->label('Nadador')
-                    ->relationship('swimmers', 'name')
-                    ->required()
-                    ->searchable()
-                    ->preload()
-                    ->createOptionForm(function (Get $get): array {
-                        $levelId = $get('level_id'); // Acceso directo desde aquí
+                Repeater::make('swimmers')
+                    ->relationship('swimmers')
+                    ->table([
+                        TableColumn::make('name'),
+                        TableColumn::make('skill')
+                    ])
+                    ->schema([
 
-                        return [
-                            TextInput::make('name')
-                                ->label('Nombre del Nadador')
-                                ->required()
-                                ->maxLength(255),
+                                TextInput::make('name')
+                                    ->label('Nombre del Nadador')
+                                    ->required()
+                                    ->maxLength(255),
 
-                            Select::make('skill_id')
-                                ->label('Objetivo')
-                                ->options(
-                                    $levelId
-                                        ? Skill::where('level_id', $levelId)->pluck('name', 'id')->toArray()
-                                        : []
-                                )
-                                ->required()
-                                ->searchable()
-                                ->placeholder($levelId ? 'Selecciona un objetivo' : 'Selecciona un nivel primero')
-                                ->disabled(!$levelId),
-                        ];
-                    })
+                                Select::make('skill_id')
+                                    ->label('Objetivo')
+                                    ->required()
+                                    ->searchable()
+
+                                    ->preload()
+                                    ->options(function (Get $get): array{
+                                        $level = $get('../../level_id');
+                                       return $level
+                                            ? Skill::where('level_id', $level)->pluck('name', 'id')->toArray()
+                                            : [];
+
+                                            }
+
+                                            )
+                                   // ->placeholder($level ? 'Selecciona un objetivo' : 'Selecciona un nivel primero')
+                                  //  ->disabled(!$level),
+                                ]),
+
+
             ]);
     }
 }
